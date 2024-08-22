@@ -2,6 +2,13 @@ import { pool } from "../utilities/db_connection";
 import moment from "moment-timezone";
 
 class Event {
+  /**
+Retrieves a list of events from the database.
+@param {Object} query - The query parameters for the event list.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Array} data - An array of event objects.
+ */
   async list(query) {
     const response = await pool.query_connection(
       "select * from events",
@@ -14,6 +21,15 @@ class Event {
     };
   }
 
+  /**
+Retrieves a single event from the database based on the provided event ID.
+@param {Object} query - The query parameters for the event detail.
+@param {number} query.event_id - The ID of the event to retrieve.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Object} data - The event object if found, or an error message if not.
+@returns {Object} data.detail - The error message if the event is not found.
+ */
   async detail(query) {
     const response = await pool
       .query_connection(
@@ -38,6 +54,17 @@ class Event {
     }
   }
 
+  /**
+Creates a new event in the database.
+@param {Object} body - The request body containing the event data.
+@param {string} body.nombre - The name of the event.
+@param {string} body.fecha - The date and time of the event in the format "YYYY-MM-DD HH:mm".
+@param {string} body.ubicacion - The location of the event.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Object} data - The event object if created successfully, or an error message if not.
+@returns {Object} data.detail - The error message if the event creation fails.
+ */
   async create(body) {
     const validation = this.validate_data(body);
     if (validation.is_valid) {
@@ -82,6 +109,18 @@ class Event {
     return validation;
   }
 
+  /**
+Updates an existing event in the database.
+@param {Object} body - The request body containing the updated event data.
+@param {string} body.nombre - The updated name of the event.
+@param {string} body.fecha - The updated date and time of the event in the format "YYYY-MM-DD HH:mm".
+@param {string} body.ubicacion - The updated location of the event.
+@param {number} body.event_id - The ID of the event to update.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Object} data - The updated event object if successful, or an error message if not.
+@returns {Object} data.detail - The error message if the event update fails.
+ */
   async update(body) {
     const event = await this.detail(body);
     if (event.status_code === 200) {
@@ -122,7 +161,7 @@ class Event {
           }
           return {
             status_code: 500,
-            data: { detail: "Error updating event" },
+            data: { detail: "Error actualizando evento" },
           };
         }
       }
@@ -133,6 +172,16 @@ class Event {
     }
   }
 
+  /**
+Deletes an event from the database based on the provided event ID.
+@param {Object} query - The query parameters for the event deletion.
+@param {number} query.event_id - The ID of the event to delete.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Object} data - The response data.
+@returns {Object} data.detail - The detail message of the response.
+@returns {Object} data.detail - The detail message of the response in case of conflict.
+ */
   async delete(query) {
     const event = await this.detail(query);
     if (event.status_code === 200) {
@@ -175,6 +224,19 @@ class Event {
     }
   }
 
+  /**
+Validates the event data based on the provided parameters.
+@param {Object} body - The request body containing the event data.
+@param {string} body.nombre - The name of the event.
+@param {string} body.fecha - The date and time of the event in the format "YYYY-MM-DD HH:mm".
+@param {string} body.ubicacion - The location of the event.
+@param {number} [body.event_id] - The ID of the event to update.
+@param {boolean} [update=false] - Indicates whether the data is for updating an existing event.
+@returns {Object} - An object containing the validation result and response data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {boolean} is_valid - Indicates whether the data is valid.
+@returns {Array} data - An array of validation error messages.
+ */
   validate_data(body, update = false) {
     const response = {
       status_code: 200,

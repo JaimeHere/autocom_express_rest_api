@@ -3,6 +3,13 @@ import moment from "moment-timezone";
 import { event as event_ctrl } from "./eventos_controller";
 
 class Reservation {
+  /**
+Retrieves a list of reservations from the database.
+@param {Object} query - The query parameters for the reservation list.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Array} data - An array of reservation objects.
+ */
   async list(query) {
     const response = await pool.query_connection(
       `select r.id, nombre_usuario, cantidad_boletos, fecha_reserva ,
@@ -18,6 +25,15 @@ left join events e on e.id = r.evento_id`,
     };
   }
 
+  /**
+Retrieves a single reservation from the database based on the provided reservation ID.
+@param {Object} query - The query parameters for the reservation detail.
+@param {number} query.reservation_id - The ID of the reservation to retrieve.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Object} data - The reservation object if found, or an error message if not.
+@returns {Object} data.detail - The error message if the reservation is not found.
+ */
   async detail(query) {
     const response = await pool
       .query_connection(
@@ -47,6 +63,17 @@ where r.id = ?`,
     }
   }
 
+    /**
+Creates a new reservation in the database.
+@param {Object} body - The request body containing the reservation data.
+@param {number} body.evento_id - The id of the event which you are reserving.
+@param {string} body.nombre_usuario - The nombre_usuario that made the reservation.
+@param {number} body.cantidad_boletos - The quantity of tickets for the reservation.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Object} data - The reservation object if created successfully, or an error message if not.
+@returns {Object} data.detail - The error message if the reservation creation fails.
+ */
   async create(body) {
     const validation = this.validate_data(body);
     if (validation.is_valid) {
@@ -105,6 +132,18 @@ where r.id = ?`,
     return validation;
   }
 
+  /**
+Updates an existing reservation in the database.
+@param {Object} body - The request body containing the updated reservation data.
+@param {number} body.evento_id - The updated id of the event which you are reserving.
+@param {string} body.nombre_usuario - The updated nombre_usuario that made the reservation.
+@param {number} body.cantidad_boletos - The updated quantity of tickets for the reservation.
+@param {number} body.reservation_id - The ID of the reservation to update.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Object} data - The updated event object if successful, or an error message if not.
+@returns {Object} data.detail - The error message if the event update fails.
+ */
   async update(body) {
     const reservation = await this.detail(body);
     if (reservation.status_code === 200) {
@@ -164,6 +203,16 @@ where r.id = ?`,
     }
   }
 
+  /**
+Deletes an reservation from the database based on the provided reservation ID.
+@param {Object} query - The query parameters for the reservation deletion.
+@param {number} query.reservation_id - The ID of the reservation to delete.
+@returns {Object} An object containing the status code and data.
+@returns {number} status_code - The HTTP status code of the response.
+@returns {Object} data - The response data.
+@returns {Object} data.detail - The detail message of the response.
+@returns {Object} data.detail - The detail message of the response in case of conflict.
+ */
   async delete(query) {
     const event = await this.detail(query);
     if (event.status_code === 200) {
@@ -197,7 +246,21 @@ where r.id = ?`,
       return event;
     }
   }
-
+/**
+ * Validates the data for creating or updating a reservation.
+ *
+ * @param {Object} body - The request body containing the reservation data.
+ * @param {number} body.evento_id - The id of the event which you are reserving.
+ * @param {string} body.nombre_usuario - The nombre_usuario that made the reservation.
+ * @param {number} body.cantidad_boletos - The quantity of tickets for the reservation.
+ * @param {number} [body.reservation_id] - The ID of the reservation to update.
+ * @param {boolean} [update=false] - Indicates whether the data is for updating a reservation.
+ *
+ * @returns {Object} An object containing the status code, validation result, and data.
+ * @returns {number} status_code - The HTTP status code of the response.
+ * @returns {boolean} is_valid - Indicates whether the data is valid.
+ * @returns {Array} data - An array of error messages if the data is not valid.
+ */
   validate_data(body, update = false) {
     const response = {
       status_code: 200,
