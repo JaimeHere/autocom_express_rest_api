@@ -1,0 +1,35 @@
+{
+  "name": "autocom_express_rest_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/index.js --exec babel-node --presets @babel/preset-env"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JaimeHere/autocom_express_rest_api.git"
+  },
+  "author": "Jaime Heredia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JaimeHere/autocom_express_rest_api/issues"
+  },
+  "homepage": "https://github.com/JaimeHere/autocom_express_rest_api#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "moment-timezone": "^0.5.45",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.25.2",
+    "@babel/node": "^7.25.0",
+    "@babel/preset-env": "^7.25.4",
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.4"
+  }
+}
